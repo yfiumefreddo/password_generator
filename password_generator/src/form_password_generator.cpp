@@ -19,7 +19,7 @@ void form_password_generator::on_check_box_checked(const object& sender, const x
 
 void form_password_generator::on_button_generate_click(const object& sender, const xtd::event_args& e) {
   text_box_passwords_.clear();
-  for (auto password : password_generator(numeric_up_down_passwords_number_.value(), numeric_up_down_password_length_.value(), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
+  for (auto password : password_generator(as<size_t>(numeric_up_down_passwords_number_.value()), as<size_t>(numeric_up_down_password_length_.value()), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
     text_box_passwords_.append_text(password + environment::new_line());
 }
 
@@ -175,9 +175,9 @@ vector<ustring> form_password_generator::password_generator(size_t number, size_
       auto character = '\0';
       auto valid = false;
       do {
-        character = rnd.next(33, 126);
+        character = as<char>(rnd.next(33, 126));
         if (include_symbols && isalnum(character) == false) valid = true;
-        if (include_numbers && isnumber(character)) valid = true;
+        if (include_numbers && isdigit(character)) valid = true;
         if (include_lowercase && isalpha(character) && islower(character)) valid = true;
         if (include_uppercase && isalpha(character) && isupper(character)) valid = true;
         if (exclude_similar && ustring(similar_charecters).index_of(character) != ustring::npos) valid = false;
