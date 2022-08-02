@@ -13,7 +13,7 @@ void password_generator_form::main() {
   application::run(password_generator_form());
 }
 
-vector<ustring> password_generator_form::password_generator(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept {
+vector<ustring> password_generator_form::generate_passwords(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept {
   xtd::random random;
   vector<ustring> passwords;
   for (auto n = 0U; n < number; ++n) {
@@ -171,7 +171,7 @@ void password_generator_form::initialize_component() {
 
 void password_generator_form::on_button_generate_click(const object& sender, const xtd::event_args& e) {
   text_box_passwords_.clear();
-  for (auto password : password_generator(as<size_t>(numeric_up_down_passwords_number_.value()), as<size_t>(numeric_up_down_password_length_.value()), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
+  for (auto password : generate_passwords(as<size_t>(numeric_up_down_passwords_number_.value()), as<size_t>(numeric_up_down_password_length_.value()), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
     text_box_passwords_.append_text(password + environment::new_line());
 }
 

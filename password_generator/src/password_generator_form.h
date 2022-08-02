@@ -22,7 +22,7 @@ namespace password_generator {
     /// @param include_uppercase if true password can contains uppercase characters ( ABC...XYZ ); otherwise false.
     /// @param exclude_similar if true password exclude similar characters ( A1iIlL2zZ5sS6G8B0oO ); otherwise false.
     /// @param exclude_ambigous if true password exclude ambigous characters ( {}[]()/\\'\"`~,;:.<> ); otherwise false.
-    static std::vector<xtd::ustring> password_generator(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept;
+    static std::vector<xtd::ustring> generate_passwords(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept;
 
   private:
     void initialize_component();
