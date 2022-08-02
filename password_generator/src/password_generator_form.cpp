@@ -1,38 +1,46 @@
-#include "form_password_generator.h"
+#include "password_generator_form.h"
 
 using namespace std;
 using namespace xtd;
 using namespace xtd::forms;
 using namespace password_generator;
 
-form_password_generator::form_password_generator() {
+password_generator_form::password_generator_form() {
   initialize_component();
 }
 
-void form_password_generator::main() {
-  application::run(form_password_generator());
+void password_generator_form::main() {
+  application::run(password_generator_form());
 }
 
-void form_password_generator::on_check_box_checked(const object& sender, const xtd::event_args& e) {
-  button_generate_.enabled(check_box_include_symbols_.checked() || check_box_include_numbers_.checked() || check_box_include_lowercase_characters_.checked() || check_box_include_uppercase_characters_.checked());
+vector<ustring> password_generator_form::password_generator(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept {
+  xtd::random random;
+  vector<ustring> passwords;
+  for (auto n = 0U; n < number; ++n) {
+    auto password = ""_s;
+    for (auto l = 0U; l < length; ++l) {
+      auto character = '\0';
+      auto valid = false;
+      do {
+        character = as<char>(random.next(33, 126));
+        if (include_symbols && isalnum(character) == false) valid = true;
+        if (include_numbers && isdigit(character)) valid = true;
+        if (include_lowercase && isalpha(character) && islower(character)) valid = true;
+        if (include_uppercase && isalpha(character) && isupper(character)) valid = true;
+        if (exclude_similar && ustring(similar_charecters).index_of(character) != ustring::npos) valid = false;
+        if (exclude_ambigous && ustring(ambigous_charecters).index_of(character) != ustring::npos)  valid = false;
+      } while (valid == false);
+      password += ustring::format("{}", character);
+    }
+    passwords.push_back(password);
+  }
+  return passwords;
 }
 
-void form_password_generator::on_button_generate_click(const object& sender, const xtd::event_args& e) {
-  text_box_passwords_.clear();
-  for (auto password : password_generator(as<size_t>(numeric_up_down_passwords_number_.value()), as<size_t>(numeric_up_down_password_length_.value()), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
-    text_box_passwords_.append_text(password + environment::new_line());
-}
-
-void form_password_generator::on_system_colors_changed(const xtd::event_args& e) {
-  form::on_system_colors_changed(e);
-  panel_input_.back_color(application::style_sheet().system_colors().window());
-  panel_output_.back_color(application::style_sheet().system_colors().window());
-}
-
-void form_password_generator::initialize_component() {
+void password_generator_form::initialize_component() {
   suspend_layout();
   //
-  // form_password_generator
+  // password_generator_form
   //
   text("Secure Password Generator");
   client_size({420, 510});
@@ -46,7 +54,6 @@ void form_password_generator::initialize_component() {
   panel_input_.back_color(application::style_sheet().system_colors().window());
   panel_input_.border_style(xtd::forms::border_style::rounded);
   panel_input_.anchor(anchor_styles::top | anchor_styles::left | anchor_styles::right);
-  panel_input_.auto_scroll(true);
   //
   // label_password_length_
   //
@@ -71,7 +78,7 @@ void form_password_generator::initialize_component() {
   check_box_include_symbols_.location({10, 35});
   check_box_include_symbols_.auto_size(true);
   check_box_include_symbols_.checked(true);
-  check_box_include_symbols_.click += {*this, &form_password_generator::on_check_box_checked};
+  check_box_include_symbols_.click += {*this, &password_generator_form::on_check_box_checked};
   //
   // check_box_include_numbers_
   //
@@ -80,7 +87,7 @@ void form_password_generator::initialize_component() {
   check_box_include_numbers_.location({10, 60});
   check_box_include_numbers_.auto_size(true);
   check_box_include_numbers_.checked(true);
-  check_box_include_numbers_.click += {*this, &form_password_generator::on_check_box_checked};
+  check_box_include_numbers_.click += {*this, &password_generator_form::on_check_box_checked};
   //
   // check_box_include_lowercase_characters_
   //
@@ -89,7 +96,7 @@ void form_password_generator::initialize_component() {
   check_box_include_lowercase_characters_.location({10, 85});
   check_box_include_lowercase_characters_.auto_size(true);
   check_box_include_lowercase_characters_.checked(true);
-  check_box_include_lowercase_characters_.click += {*this, &form_password_generator::on_check_box_checked};
+  check_box_include_lowercase_characters_.click += {*this, &password_generator_form::on_check_box_checked};
   //
   // check_box_include_uppercase_characters_
   //
@@ -98,7 +105,7 @@ void form_password_generator::initialize_component() {
   check_box_include_uppercase_characters_.location({10, 110});
   check_box_include_uppercase_characters_.auto_size(true);
   check_box_include_uppercase_characters_.checked(true);
-  check_box_include_uppercase_characters_.click += {*this, &form_password_generator::on_check_box_checked};
+  check_box_include_uppercase_characters_.click += {*this, &password_generator_form::on_check_box_checked};
   //
   // check_box_exclude_similar_characters_
   //
@@ -115,8 +122,8 @@ void form_password_generator::initialize_component() {
   check_box_exclude_ambigous_characters_.location({10, 160});
   check_box_exclude_ambigous_characters_.auto_size(true);
   check_box_exclude_ambigous_characters_.checked(true);
-//
-  // labelPasswordLength
+  //
+  // label_passwords_number_
   //
   label_passwords_number_.parent(panel_input_);
   label_passwords_number_.text("Number of passwords");
@@ -139,9 +146,9 @@ void form_password_generator::initialize_component() {
   button_generate_.location({10, 245});
   button_generate_.size({400, 25});
   button_generate_.anchor(anchor_styles::top | anchor_styles::left | anchor_styles::right);
-  button_generate_.click += {*this, &form_password_generator::on_button_generate_click};
+  button_generate_.click += {*this, &password_generator_form::on_button_generate_click};
   //
-  // panel_input_
+  // panel_output_
   //
   panel_output_.parent(*this);
   panel_output_.location({10, 280});
@@ -150,7 +157,6 @@ void form_password_generator::initialize_component() {
   panel_output_.border_style(xtd::forms::border_style::rounded);
   panel_output_.padding(6);
   panel_output_.anchor(anchor_styles::top | anchor_styles::left | anchor_styles::right | anchor_styles::bottom);
-  panel_output_.auto_scroll(true);
   //
   // text_box_passwords_
   //
@@ -163,29 +169,18 @@ void form_password_generator::initialize_component() {
   resume_layout();
 }
 
-const ustring form_password_generator::ambigous_charecters = "{}[]()/\\'\"`~,;:.<>";
-const ustring form_password_generator::similar_charecters = "1iIlL2zZ5sS6G8B0oO";
+void password_generator_form::on_button_generate_click(const object& sender, const xtd::event_args& e) {
+  text_box_passwords_.clear();
+  for (auto password : password_generator(as<size_t>(numeric_up_down_passwords_number_.value()), as<size_t>(numeric_up_down_password_length_.value()), check_box_include_symbols_.checked(), check_box_include_numbers_.checked(), check_box_include_lowercase_characters_.checked(), check_box_include_uppercase_characters_.checked(), check_box_exclude_similar_characters_.checked(), check_box_exclude_ambigous_characters_.checked()))
+    text_box_passwords_.append_text(password + environment::new_line());
+}
 
-vector<ustring> form_password_generator::password_generator(size_t number, size_t length, bool include_symbols, bool include_numbers, bool include_lowercase, bool include_uppercase, bool exclude_similar, bool exclude_ambigous) noexcept {
-  xtd::random rnd;
-  vector<ustring> passwords;
-  for (auto n = 0U; n < number; ++n) {
-    auto password = ""_s;
-    for (auto l = 0U; l < length; ++l) {
-      auto character = '\0';
-      auto valid = false;
-      do {
-        character = as<char>(rnd.next(33, 126));
-        if (include_symbols && isalnum(character) == false) valid = true;
-        if (include_numbers && isdigit(character)) valid = true;
-        if (include_lowercase && isalpha(character) && islower(character)) valid = true;
-        if (include_uppercase && isalpha(character) && isupper(character)) valid = true;
-        if (exclude_similar && ustring(similar_charecters).index_of(character) != ustring::npos) valid = false;
-        if (exclude_ambigous && ustring(ambigous_charecters).index_of(character) != ustring::npos)  valid = false;
-      } while (valid == false);
-      password += ustring::format("{}", character);
-    }
-    passwords.push_back(password);
-  }
-  return passwords;
+void password_generator_form::on_check_box_checked(const object& sender, const xtd::event_args& e) {
+  button_generate_.enabled(check_box_include_symbols_.checked() || check_box_include_numbers_.checked() || check_box_include_lowercase_characters_.checked() || check_box_include_uppercase_characters_.checked());
+}
+
+void password_generator_form::on_system_colors_changed(const xtd::event_args& e) {
+  form::on_system_colors_changed(e);
+  panel_input_.back_color(application::style_sheet().system_colors().window());
+  panel_output_.back_color(application::style_sheet().system_colors().window());
 }
