@@ -14,7 +14,7 @@ namespace password_generator {
     /// @brief The main entry point for the application.
     static void main();
 
-    /// @brief Generates the passwords with specified numer, length and options.
+    /// @brief Generates the passwords with specified number, length and options.
     /// @param number The number of passwords to generate.
     /// @param size The size in characters of passwords.
     /// @param include_symboles if true password can contains symboles ( !\"#$%&'()*+,-./:;<=>?@[\\]^_{|}~ ); otherwise false.
