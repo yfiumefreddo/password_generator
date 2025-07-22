@@ -1,4 +1,4 @@
-#include "password_generator_form.h"
+#include "password_generator_form.hpp"
 
 using namespace password_generator;
 
